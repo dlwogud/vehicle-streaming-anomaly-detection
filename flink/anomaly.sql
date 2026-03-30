@@ -26,7 +26,12 @@ CREATE TABLE anomaly_sink (
     steering_angle DOUBLE,
     anomaly_reason STRING
 ) WITH (
-    'connector' = 'print'
+    'connector' = 'jdbc',
+    'url' = 'jdbc:postgresql://postgres:5432/vehicle_db',
+    'table-name' = 'anomaly_data',
+    'username' = 'flinkuser',
+    'password' = 'flinkpw',
+    'driver' = 'org.postgresql.Driver'
 );
 
 INSERT INTO anomaly_sink
