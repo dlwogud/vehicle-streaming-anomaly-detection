@@ -11,6 +11,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
+    restart: on-failure
     depends_on:
       - zookeeper
     ports:
@@ -26,14 +27,26 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
   jobmanager:
     image: flink:1.18.1-scala_2.12-java11
     container_name: jobmanager
-    command: jobmanager
+    command: standalone-job --job-classname com.example.vehicle.VehicleAnomalyJob
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     ports:
       - "8081:8081"
     volumes:
+      - ./build/vehicle-anomaly-job.jar:/opt/flink/usrlib/vehicle-anomaly-job.jar
+      - ./flink/anomaly.sql:/opt/flink/sql/anomaly.sql:ro
       - ./flink/lib/flink-connector-jdbc-3.2.0-1.18.jar:/opt/flink/lib/flink-connector-jdbc-3.2.0-1.18.jar
       - ./flink/lib/flink-sql-connector-kafka-3.2.0-1.18.jar:/opt/flink/lib/flink-sql-connector-kafka-3.2.0-1.18.jar
       - ./flink/lib/postgresql-42.7.3.jar:/opt/flink/lib/postgresql-42.7.3.jar
@@ -45,9 +58,11 @@ services:
     image: flink:1.18.1-scala_2.12-java11
     container_name: taskmanager
     depends_on:
-      - jobmanager
+      jobmanager:
+        condition: service_started
     command: taskmanager
     volumes:
+      - ./build/vehicle-anomaly-job.jar:/opt/flink/usrlib/vehicle-anomaly-job.jar
       - ./flink/lib/flink-connector-jdbc-3.2.0-1.18.jar:/opt/flink/lib/flink-connector-jdbc-3.2.0-1.18.jar
       - ./flink/lib/flink-sql-connector-kafka-3.2.0-1.18.jar:/opt/flink/lib/flink-sql-connector-kafka-3.2.0-1.18.jar
       - ./flink/lib/postgresql-42.7.3.jar:/opt/flink/lib/postgresql-42.7.3.jar
@@ -55,6 +70,7 @@ services:
       FLINK_PROPERTIES: |
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 2
+
   postgres:
     image: postgres:15
     container_name: postgres
@@ -64,3 +80,14 @@ services:
       POSTGRES_PASSWORD: flinkpw
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flinkuser -d vehicle_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
