@@ -37,6 +37,18 @@
 실제 규칙은 [`flink/anomaly.sql`](flink/anomaly.sql) 안의 `CASE` 문으로 관리됩니다.
 
 ## How To Run
+### Quick Checklist
+처음부터 빠르게 확인하려면 아래 4개만 보면 됩니다.
+
+1. `python3 flink/job.py`
+2. `.venv/bin/python producer/producer.py`
+3. `docker exec jobmanager /opt/flink/bin/flink list`
+4. `docker exec postgres psql -U flinkuser -d vehicle_db -c "SELECT * FROM anomaly_data ORDER BY timestamp DESC LIMIT 5;"`
+
+정상이라면:
+- Flink job이 `RUNNING`
+- PostgreSQL `anomaly_data`에 row가 계속 증가
+
 ### 1. Flink SQL pipeline 기동
 아래 명령이 Maven 빌드와 Docker Compose 기동을 한 번에 수행합니다.
 
