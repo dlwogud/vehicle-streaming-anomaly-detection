@@ -3,6 +3,9 @@
 ## Overview
 이 프로젝트는 차량 센서 이벤트를 Kafka로 스트리밍하고, Flink SQL로 이상 주행 패턴을 분류한 뒤, 결과를 PostgreSQL에 적재하는 예제입니다.
 
+This project implements a real-time vehicle anomaly detection pipeline using Kafka and Flink. The processed data is stored in PostgreSQL.
+
+
 최종 데이터 흐름은 아래와 같습니다.
 
 `producer.py -> Kafka -> Flink SQL -> PostgreSQL`
