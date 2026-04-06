@@ -63,6 +63,8 @@ Columns:
 
 ## 📁 Project Structure
 
+
+```
 vehicle-streaming-anomaly-detection/
 ├── docker-compose.yml
 ├── producer.py
@@ -71,6 +73,8 @@ vehicle-streaming-anomaly-detection/
 ├── requirements.txt
 ├── screenshots/
 └── sql/
+```
+
 
 ---
 
@@ -93,10 +97,10 @@ python producer.py
 ## 📈 Results
 
 Example:
-
+```
 car-001 | HIGH_ENGINE_TEMP
 car-003 | HIGH_RPM
-
+```
 ---
 
 ## 💡 Key Takeaways
