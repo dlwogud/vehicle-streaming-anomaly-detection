@@ -1,3 +1,63 @@
+# Real-Time Vehicle Anomaly Detection Pipeline
+📖 Problem Description
+Modern vehicles generate massive amounts of sensor data in real time.
+Detecting anomalies such as high engine temperature or abnormal RPM is critical for safety and maintenance.
+This project builds a real-time data pipeline to detect anomalies from vehicle sensor streams.
+⚙️ Architecture
+Producer → Kafka → Flink → PostgreSQL
+Producer: Simulates vehicle sensor data
+Kafka: Streams data in real time
+Flink: Processes and detects anomalies
+PostgreSQL: Stores detected anomalies
+🧠 Why Streaming?
+Most projects use batch processing, but this project uses streaming because:
+Immediate anomaly detection is required
+Low latency is critical for real-time systems
+Better reflects real-world vehicle monitoring systems
+📊 Data
+Simulated vehicle sensor data:
+vehicle_id
+timestamp
+speed
+rpm
+engine_temp
+brake
+steering_angle
+🚨 Anomaly Detection Logic
+Anomalies are detected based on rules:
+engine_temp > 90 → HIGH_ENGINE_TEMP
+rpm > 4500 → HIGH_RPM
+speed > 100 AND brake = TRUE → DANGEROUS_DRIVING
+ABS(steering_angle) > 25 → SHARP_TURN
+🛠️ Technologies Used
+Apache Kafka
+Apache Flink
+PostgreSQL
+Python (Kafka Producer)
+Docker
+▶️ How to Run
+1. Start services
+docker-compose up -d
+2. Run Kafka Producer
+python producer.py
+3. Run Flink SQL
+./bin/sql-client.sh -f anomaly.sql
+📈 Results
+Example anomaly output:
+car-001 | HIGH_ENGINE_TEMP
+car-003 | HIGH_RPM
+Detected anomalies are stored in PostgreSQL for further analysis.
+💡 Key Takeaways
+Built a real-time streaming pipeline using Kafka and Flink
+Implemented rule-based anomaly detection
+Compared streaming vs batch approaches
+Designed a scalable architecture for real-world use cases
+🚀 Future Improvements
+Add Airflow for orchestration
+Deploy on cloud (AWS/GCP)
+Use ML model for anomaly detection instead of rules
+Add dashboard (e.g., Grafana)
+
 # vehicle-streaming-anomaly-detection
 
 ## Overview
