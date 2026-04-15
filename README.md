@@ -107,6 +107,12 @@ car-001 | HIGH_ENGINE_TEMP
 car-003 | HIGH_RPM
 ```
 ---
+## ✅ Verified Result
+
+The processed anomaly records are stored in PostgreSQL.
+
+![postgres-result](screenshots/postgres_result.png)
+
 
 ## 📊 Dashboard
 
