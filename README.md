@@ -28,6 +28,11 @@ Python Producer → Kafka → Flink → PostgreSQL
 
 ---
 
+## 🏗️ Architecture Diagram
+
+![architecture](screenshots/architecture.png)
+
+
 ## 📊 Data
 
 Columns:
