@@ -121,9 +121,7 @@ This diagram illustrates the real-time data flow from data generation to storage
 - Python 3.9+
 
 ```md
-## Install Dependencies
-```bash
-pip install -r requirements.txt
+## ⚙️ Prerequisites
 
 ## 📊 Dashboard
 
