@@ -113,6 +113,16 @@ The processed anomaly records are stored in PostgreSQL.
 
 ![postgres-result](screenshots/postgres_result.png)
 
+## ⚙️ Prerequisites
+
+- Docker
+- Docker Compose
+- Python 3.9+
+
+## Install Dependencies
+
+```bash
+pip install -r requirements.txt
 
 ## 📊 Dashboard
 
