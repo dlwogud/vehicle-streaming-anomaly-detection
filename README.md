@@ -122,7 +122,6 @@ This diagram illustrates the real-time data flow from data generation to storage
 
 ```md
 ## Install Dependencies
-
 ```bash
 pip install -r requirements.txt
 
