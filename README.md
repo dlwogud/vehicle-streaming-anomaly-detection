@@ -112,6 +112,7 @@ car-003 | HIGH_RPM
 The processed anomaly records are stored in PostgreSQL.
 
 ![postgres-result](screenshots/postgres_result.png)
+This diagram illustrates the real-time data flow from data generation to storage.
 
 ## ⚙️ Prerequisites
 
@@ -119,6 +120,7 @@ The processed anomaly records are stored in PostgreSQL.
 - Docker Compose
 - Python 3.9+
 
+```md
 ## Install Dependencies
 
 ```bash
@@ -127,6 +129,7 @@ pip install -r requirements.txt
 ## 📊 Dashboard
 
 This dashboard shows the distribution of detected anomaly types stored in PostgreSQL.
+This dashboard visualizes anomaly distribution based on processed streaming data.
 
 ### Anomaly Distribution
 ![dashboard](screenshots/chart1.png)
