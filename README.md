@@ -120,8 +120,7 @@ This diagram illustrates the real-time data flow from data generation to storage
 - Docker Compose
 - Python 3.9+
 
-```md
-## ⚙️ Prerequisites
+
 
 ## 📊 Dashboard
 
