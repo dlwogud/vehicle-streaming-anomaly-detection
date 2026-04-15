@@ -108,6 +108,14 @@ car-003 | HIGH_RPM
 ```
 ---
 
+## 📊 Dashboard
+
+This dashboard shows the distribution of detected anomaly types stored in PostgreSQL.
+
+### Anomaly Distribution
+![dashboard](screenshots/chart1.png)
+
+
 ## 💡 Key Takeaways
 
 * Built real-time streaming pipeline
