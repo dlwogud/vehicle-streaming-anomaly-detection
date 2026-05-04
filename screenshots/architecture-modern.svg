@@ -1,0 +1,122 @@
+<svg width="1400" height="860" viewBox="0 0 1400 860" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1400" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F7FB"/>
+      <stop offset="1" stop-color="#EEF3EA"/>
+    </linearGradient>
+    <linearGradient id="stream" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1F6FEB"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="warehouse" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="orchestration" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+    <filter id="shadow" x="-40" y="-40" width="1480" height="940" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="20" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M0 0L12 6L0 12V0Z" fill="#1F6FEB"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M0 0L12 6L0 12V0Z" fill="#15803D"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M0 0L12 6L0 12V0Z" fill="#EA580C"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="860" rx="28" fill="url(#bg)"/>
+  <g opacity="0.5">
+    <circle cx="1230" cy="110" r="140" fill="#DDEAFE"/>
+    <circle cx="180" cy="760" r="170" fill="#DCFCE7"/>
+  </g>
+
+  <text x="80" y="90" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700">
+    Vehicle Streaming Anomaly Detection Architecture
+  </text>
+  <text x="80" y="126" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="20">
+    Streaming ingestion, real-time detection, and scheduled analytics modeling
+  </text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="188" width="1220" height="264" rx="28" fill="white"/>
+    <rect x="72" y="500" width="1220" height="264" rx="28" fill="white"/>
+  </g>
+
+  <rect x="102" y="214" width="200" height="32" rx="16" fill="#DBEAFE"/>
+  <text x="126" y="236" fill="#1D4ED8" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">
+    Streaming Layer
+  </text>
+  <rect x="102" y="526" width="212" height="32" rx="16" fill="#FFEDD5"/>
+  <text x="126" y="548" fill="#C2410C" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">
+    Analytics Layer
+  </text>
+
+  <g>
+    <rect x="118" y="270" width="230" height="128" rx="24" fill="url(#stream)"/>
+    <text x="148" y="322" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Python Producer</text>
+    <text x="148" y="360" fill="#DBEAFE" font-family="Arial, Helvetica, sans-serif" font-size="20">Generate sensor events</text>
+    <text x="148" y="388" fill="#DBEAFE" font-family="Arial, Helvetica, sans-serif" font-size="20">speed, rpm, temp</text>
+  </g>
+
+  <g>
+    <rect x="420" y="270" width="230" height="128" rx="24" fill="url(#stream)"/>
+    <text x="506" y="322" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Kafka</text>
+    <text x="506" y="360" text-anchor="middle" fill="#DBEAFE" font-family="Arial, Helvetica, sans-serif" font-size="20">Event stream</text>
+    <text x="506" y="388" text-anchor="middle" fill="#DBEAFE" font-family="Arial, Helvetica, sans-serif" font-size="20">vehicle-sensor-data</text>
+  </g>
+
+  <g>
+    <rect x="722" y="270" width="230" height="128" rx="24" fill="url(#stream)"/>
+    <text x="837" y="322" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Flink SQL</text>
+    <text x="837" y="360" text-anchor="middle" fill="#DBEAFE" font-family="Arial, Helvetica, sans-serif" font-size="20">Rule-based detection</text>
+    <text x="837" y="388" text-anchor="middle" fill="#DBEAFE" font-family="Arial, Helvetica, sans-serif" font-size="20">real-time classification</text>
+  </g>
+
+  <g>
+    <rect x="1024" y="270" width="230" height="128" rx="24" fill="url(#warehouse)"/>
+    <text x="1139" y="322" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">PostgreSQL</text>
+    <text x="1139" y="360" text-anchor="middle" fill="#DCFCE7" font-family="Arial, Helvetica, sans-serif" font-size="20">Raw anomaly store</text>
+    <text x="1139" y="388" text-anchor="middle" fill="#DCFCE7" font-family="Arial, Helvetica, sans-serif" font-size="20">anomaly_data</text>
+  </g>
+
+  <line x1="348" y1="334" x2="420" y2="334" stroke="#1F6FEB" stroke-width="8" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+  <line x1="650" y1="334" x2="722" y2="334" stroke="#1F6FEB" stroke-width="8" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+  <line x1="952" y1="334" x2="1024" y2="334" stroke="#15803D" stroke-width="8" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+
+  <g>
+    <rect x="186" y="582" width="260" height="126" rx="24" fill="url(#warehouse)"/>
+    <text x="316" y="634" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">dbt Staging</text>
+    <text x="316" y="670" text-anchor="middle" fill="#DCFCE7" font-family="Arial, Helvetica, sans-serif" font-size="20">Type cleanup</text>
+    <text x="316" y="698" text-anchor="middle" fill="#DCFCE7" font-family="Arial, Helvetica, sans-serif" font-size="20">standardized columns</text>
+  </g>
+
+  <g>
+    <rect x="570" y="582" width="260" height="126" rx="24" fill="url(#warehouse)"/>
+    <text x="700" y="624" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">dbt Marts</text>
+    <text x="700" y="660" text-anchor="middle" fill="#DCFCE7" font-family="Arial, Helvetica, sans-serif" font-size="20">Fact and 5-min aggregates</text>
+    <text x="700" y="688" text-anchor="middle" fill="#DCFCE7" font-family="Arial, Helvetica, sans-serif" font-size="20">deduped + tested</text>
+  </g>
+
+  <g>
+    <rect x="954" y="582" width="260" height="126" rx="24" fill="url(#orchestration)"/>
+    <text x="1084" y="624" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Airflow</text>
+    <text x="1084" y="660" text-anchor="middle" fill="#FFEDD5" font-family="Arial, Helvetica, sans-serif" font-size="20">5-minute orchestration</text>
+    <text x="1084" y="688" text-anchor="middle" fill="#FFEDD5" font-family="Arial, Helvetica, sans-serif" font-size="20">debug - run - test</text>
+  </g>
+
+  <line x1="316" y1="582" x2="316" y2="454" stroke="#15803D" stroke-width="8" stroke-linecap="round"/>
+  <line x1="316" y1="454" x2="1139" y2="454" stroke="#15803D" stroke-width="8" stroke-linecap="round"/>
+  <line x1="1139" y1="454" x2="1139" y2="582" stroke="#15803D" stroke-width="8" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+  <line x1="446" y1="645" x2="570" y2="645" stroke="#15803D" stroke-width="8" stroke-linecap="round" marker-end="url(#arrowGreen)"/>
+  <line x1="830" y1="645" x2="954" y2="645" stroke="#EA580C" stroke-width="8" stroke-linecap="round" marker-end="url(#arrowOrange)"/>
+
+  <text x="82" y="812" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="18">
+    Core flow: Producer - Kafka - Flink - PostgreSQL - dbt - Airflow
+  </text>
+</svg>

@@ -11,12 +11,14 @@ This project builds a real-time streaming pipeline to detect anomalies from vehi
 
 ## ⚙️ Architecture
 
-Python Producer → Kafka → Flink → PostgreSQL
+Python Producer → Kafka → Flink → PostgreSQL → dbt → Airflow
 
 * Producer: generates vehicle sensor data
 * Kafka: streams data
 * Flink: processes and detects anomalies
-* PostgreSQL: stores results
+* PostgreSQL: stores raw anomaly results
+* dbt: transforms raw data into staging and marts models
+* Airflow: orchestrates dbt runs and tests on a schedule
 
 ---
 
@@ -30,7 +32,7 @@ Python Producer → Kafka → Flink → PostgreSQL
 
 ## 🏗️ Architecture Diagram
 
-![architecture](screenshots/architecture.png)
+![architecture](screenshots/architecture-modern.svg)
 
 
 ## 📊 Data
@@ -61,6 +63,8 @@ Columns:
 * Kafka
 * Flink
 * PostgreSQL
+* dbt
+* Airflow
 * Python
 * Docker
 
