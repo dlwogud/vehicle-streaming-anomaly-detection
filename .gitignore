@@ -216,3 +216,8 @@ data/*.csv
 
 !flink/lib/
 !flink/lib/*.jar
+
+airflow/logs/*
+!airflow/logs/.gitkeep
+dbt/.user.yml
+dbt/target/

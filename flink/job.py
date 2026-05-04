@@ -33,6 +33,24 @@ def wait_for_kafka(timeout_seconds: int = 60) -> bool:
     return False
 
 
+def create_kafka_topic() -> int:
+    topic_cmd = [
+        "docker",
+        "exec",
+        "kafka",
+        "bash",
+        "-lc",
+        (
+            "kafka-topics --bootstrap-server kafka:9092 "
+            "--create --if-not-exists "
+            "--topic vehicle-sensor-data "
+            "--partitions 1 "
+            "--replication-factor 1"
+        ),
+    ]
+    return run_command(topic_cmd)
+
+
 def run() -> int:
     build_dir = ROOT_DIR / "build"
     build_dir.mkdir(exist_ok=True)
@@ -71,6 +89,9 @@ def run() -> int:
     run_command(infra_cmd)
 
     if not wait_for_kafka():
+        return 1
+
+    if create_kafka_topic() != 0:
         return 1
 
     flink_cmd = [
