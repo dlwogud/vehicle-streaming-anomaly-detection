@@ -1,0 +1,42 @@
+version: 2
+
+sources:
+  - name: vehicle_raw
+    description: "Flink가 PostgreSQL에 적재하는 원본 이상 탐지 결과."
+    schema: public
+    tables:
+      - name: anomaly_data
+        description: "Kafka -> Flink -> PostgreSQL 경로를 거친 raw anomaly events."
+        columns:
+          - name: vehicle_id
+            tests:
+              - not_null
+          - name: timestamp
+            tests:
+              - not_null
+          - name: anomaly_reason
+            tests:
+              - not_null
+
+models:
+  - name: stg_anomaly_data
+    description: "raw anomaly 데이터를 분석 친화적인 타입과 컬럼명으로 정리한 staging 모델."
+    columns:
+      - name: vehicle_id
+        tests:
+          - not_null
+      - name: event_ts
+        tests:
+          - not_null
+      - name: anomaly_reason
+        tests:
+          - not_null
+  - name: fct_vehicle_anomalies
+    description: "이상 이벤트 단위 fact 테이블."
+    columns:
+      - name: anomaly_event_key
+        tests:
+          - unique
+          - not_null
+  - name: agg_anomaly_counts_5m
+    description: "5분 단위 이상 유형별 집계 테이블."

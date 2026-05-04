@@ -214,7 +214,8 @@ python3 flink/job.py
 1. Dockerized Maven으로 Flink application jar 빌드
 2. Zookeeper, PostgreSQL, Kafka 기동
 3. Kafka가 healthy 상태가 될 때까지 대기
-4. Flink application mode로 SQL job 실행
+4. `vehicle-sensor-data` 토픽 자동 생성
+5. Flink application mode로 SQL job 실행
 
 ### 2. Producer 실행
 랜덤 차량 센서 데이터를 계속 Kafka로 보냅니다.
@@ -227,8 +228,75 @@ python3 flink/job.py
 Kafka에 실제로 메시지가 들어오는지 보고 싶으면 consumer를 실행합니다.
 
 ```bash
-.venv/bin/python flink/consumer.py
+python3 flink/consumer.py
 ```
+
+## Airflow + dbt Layer
+
+이 레포에는 스트리밍 파이프라인 위에 배치 분석 계층을 붙이는 예시로 `dbt`와 `Airflow` 초안을 추가했습니다.
+
+역할 분리는 아래처럼 이해하면 됩니다.
+
+- `Kafka/Flink`: 실시간 이벤트 처리와 이상 판별
+- `PostgreSQL`: raw anomaly 저장
+- `dbt`: raw 데이터를 staging, marts로 변환
+- `Airflow`: `dbt run`, `dbt test`를 주기적으로 실행
+
+### Why This Design
+
+스트리밍 job인 Flink는 계속 떠 있는 것이 자연스럽고, Airflow는 반복 실행되는 배치 작업에 강합니다.
+그래서 Airflow가 Flink를 대체하는 것이 아니라, Flink가 저장한 결과를 `5분` 단위로 모델링하는 역할을 맡깁니다.
+
+### Added Directories
+
+- `dbt/`: dbt project, profiles, models
+- `airflow/dags/`: Airflow DAG
+- `airflow/Dockerfile`: Airflow image with dbt installed
+
+### dbt Model Flow
+
+`public.anomaly_data` -> `staging.stg_anomaly_data` -> `analytics.fct_vehicle_anomalies` -> `analytics.agg_anomaly_counts_5m`
+
+각 모델의 의미는 아래와 같습니다.
+
+- `stg_anomaly_data`: 타입 정리와 컬럼 표준화
+- `fct_vehicle_anomalies`: 이벤트 단위 fact 테이블
+- `agg_anomaly_counts_5m`: 대시보드용 5분 집계 테이블
+
+### Start Airflow
+
+기존 인프라가 켜진 뒤 아래 명령으로 Airflow 계층까지 올릴 수 있습니다.
+
+```bash
+docker compose up -d airflow-postgres airflow-init airflow-webserver airflow-scheduler
+```
+
+접속:
+
+- Airflow UI: `http://localhost:8080`
+- ID/PW: `admin` / `admin`
+
+### Airflow DAG
+
+추가된 DAG 이름은 `dbt_vehicle_analytics` 입니다.
+
+순서는 아래와 같습니다.
+
+1. `dbt debug`
+2. `dbt run --select staging`
+3. `dbt run --select marts`
+4. `dbt test`
+
+### Study Tips
+
+처음에는 아래 순서로 따라가면 이해가 잘 됩니다.
+
+1. raw 테이블 `anomaly_data`를 직접 조회해 보기
+2. `dbt/models/staging/stg_anomaly_data.sql` 읽기
+3. `dbt/models/marts/fct_vehicle_anomalies.sql` 읽기
+4. `airflow/dags/dbt_vehicle_pipeline.py`에서 실행 순서 확인하기
+
+이렇게 보면 "스트리밍 처리"와 "배치 모델링"의 경계가 꽤 또렷하게 잡힙니다.
 
 ### 4. PostgreSQL 적재 확인
 
