@@ -65,6 +65,8 @@ Columns:
 * PostgreSQL
 * dbt
 * Airflow
+* Terraform
+* GCP Compute Engine
 * Python
 * Docker
 
@@ -118,6 +120,26 @@ The processed anomaly records are stored in PostgreSQL.
 ![postgres-result](screenshots/postgres_result.png)
 This diagram illustrates the real-time data flow from data generation to storage.
 
+## ☁️ Cloud Provisioning
+
+This repository also includes a small Infrastructure-as-Code layer for GCP.
+The goal of this step was to validate cloud provisioning with Terraform before moving on to full deployment of the data pipeline.
+
+What was completed:
+
+* Created a dedicated GCP project: `vehicle-anomaly-pipeline`
+* Connected billing and authenticated with `gcloud`
+* Added Terraform configuration under `infra/terraform/`
+* Enabled the Compute Engine API
+* Provisioned a Compute Engine VM with Terraform and verified the VM outputs
+
+What was not done yet:
+
+* Deploying the full Kafka/Flink/PostgreSQL/dbt/Airflow stack on the VM
+* Running the pipeline end-to-end inside GCP
+
+At this stage, the cloud work covers **infrastructure provisioning**, not full **application deployment** yet.
+
 ## ⚙️ Prerequisites
 
 - Docker
@@ -140,15 +162,15 @@ This dashboard visualizes anomaly distribution based on processed streaming data
 * Built real-time streaming pipeline
 * Kafka + Flink integration
 * Rule-based anomaly detection
+* Provisioned a GCP VM with Terraform
 
 ---
 
 ## 🚀 Future Improvements
 
-* Airflow orchestration
-* Cloud deployment
-* ML-based anomaly detection
-* Dashboard visualization
+* Deploy the full Docker-based pipeline on the provisioned GCP VM
+* Add stronger data quality checks and operational monitoring
+* Extend the dashboard with mart-based analytics views
 
 ---
 
@@ -290,6 +312,41 @@ docker compose up -d airflow-postgres airflow-init airflow-webserver airflow-sch
 2. `dbt run --select staging`
 3. `dbt run --select marts`
 4. `dbt test`
+
+## Cloud Provisioning with GCP + Terraform
+
+이 프로젝트는 로컬 Docker 기반 파이프라인 위에, 클라우드 확장 연습을 위해 `GCP + Terraform` 뼈대도 추가했습니다.
+
+이번 단계에서 실제로 한 범위는 아래와 같습니다.
+
+- GCP project `vehicle-anomaly-pipeline` 생성
+- Billing 연결
+- `Terraform` provider 설정
+- `gcloud` 인증 및 `Application Default Credentials` 설정
+- `Compute Engine API` 활성화
+- Terraform으로 `Compute Engine VM` 1대 프로비저닝
+
+관련 IaC 파일:
+
+- `infra/terraform/provider.tf`
+- `infra/terraform/variables.tf`
+- `infra/terraform/main.tf`
+- `infra/terraform/outputs.tf`
+
+기본 Terraform 흐름:
+
+```bash
+cd infra/terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+이 단계에서 확인한 것은 **클라우드 인프라 provisioning**까지입니다.
+즉, VM 자체는 생성했지만 아직 그 VM 위에 Kafka/Flink/PostgreSQL/dbt/Airflow 전체 파이프라인을 배포해 end-to-end로 실행한 단계는 아닙니다.
+
+이 구분은 의도적입니다.
+이번에는 먼저 `로컬 파이프라인 -> 클라우드 인프라`로 확장 가능한 구조를 만들고, 다음 단계에서 실제 애플리케이션 배포와 실행 검증으로 이어가도록 범위를 나눴습니다.
 
 ### Study Tips
 
