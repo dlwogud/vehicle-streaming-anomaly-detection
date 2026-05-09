@@ -1,0 +1,4 @@
+project_id = "vehicle-anomaly-pipeline"
+region     = "asia-northeast3"
+zone       = "asia-northeast3-a"
+vm_name    = "vehicle-anomaly-vm"
