@@ -17,6 +17,13 @@ sources:
           - name: anomaly_reason
             tests:
               - not_null
+              - accepted_values:
+                  values:
+                    - NORMAL
+                    - HIGH_ENGINE_TEMP
+                    - HIGH_RPM
+                    - HIGH_SPEED_WITH_BRAKE
+                    - SHARP_STEERING
 
 models:
   - name: stg_anomaly_data
@@ -31,6 +38,13 @@ models:
       - name: anomaly_reason
         tests:
           - not_null
+          - accepted_values:
+              values:
+                - NORMAL
+                - HIGH_ENGINE_TEMP
+                - HIGH_RPM
+                - HIGH_SPEED_WITH_BRAKE
+                - SHARP_STEERING
   - name: fct_vehicle_anomalies
     description: "이상 이벤트 단위 fact 테이블."
     columns:
@@ -38,5 +52,33 @@ models:
         tests:
           - unique
           - not_null
+      - name: event_date
+        tests:
+          - not_null
+      - name: severity_level
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1, 2]
   - name: agg_anomaly_counts_5m
     description: "5분 단위 이상 유형별 집계 테이블."
+    columns:
+      - name: window_start
+        tests:
+          - not_null
+      - name: anomaly_reason
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - NORMAL
+                - HIGH_ENGINE_TEMP
+                - HIGH_RPM
+                - HIGH_SPEED_WITH_BRAKE
+                - SHARP_STEERING
+      - name: anomaly_count
+        tests:
+          - not_null
+      - name: affected_vehicle_count
+        tests:
+          - not_null
