@@ -185,6 +185,49 @@ Cleanup:
 - Airflow dbt debug failed before `git` was installed in the Airflow image
 - Terraform apply initially failed until Compute Engine API was enabled
 
+### Failure and Bottleneck Checklist
+
+When the pipeline does not behave as expected, I use the following order to narrow down the problem:
+
+#### 1. Check the input layer
+
+- Is the producer running?
+- Is Kafka alive?
+- Does the `vehicle-sensor-data` topic exist?
+- Are messages actually entering Kafka?
+
+If this layer is unhealthy, the issue is usually in `producer -> Kafka`.
+
+#### 2. Check the streaming processing layer
+
+- Is the Flink job in `RUNNING` state?
+- Is Kafka receiving data but PostgreSQL raw rows not increasing?
+- Are there source or sink errors in Flink logs?
+
+If this layer is unhealthy, the issue is usually in `Kafka -> Flink -> PostgreSQL`.
+
+#### 3. Check the raw storage layer
+
+- Is `public.anomaly_data` growing over time?
+- Is row growth much slower than expected?
+
+If this layer is unhealthy, the bottleneck may be in Flink sink processing or PostgreSQL writes.
+
+#### 4. Check the analytics layer
+
+- Is `dbt run` taking longer than expected?
+- Is `dbt test` failing?
+- Is Airflow task duration increasing or overlapping with the next schedule?
+
+If this layer is unhealthy, the issue is usually in `PostgreSQL -> dbt -> Airflow`.
+
+#### 5. Simple bottleneck rule of thumb
+
+- Kafka also looks unhealthy: input-side issue
+- Kafka is healthy but PostgreSQL raw writes are slow: streaming or sink bottleneck
+- PostgreSQL raw writes are normal but dbt is slow: analytics-layer bottleneck
+- Everything looks healthy but deployment or access fails: environment or infrastructure issue
+
 ### Future Improvements
 
 - deploy the full Docker-based pipeline on the GCP VM
@@ -375,6 +418,49 @@ cd infra/terraform
 - raw 이벤트 중복 때문에 dbt uniqueness 테스트가 깨져 `fct_vehicle_anomalies.sql`에 dedupe 로직을 추가했습니다.
 - Airflow 이미지 안에 `git`이 없어서 dbt debug가 실패한 적이 있었습니다.
 - Terraform apply는 Compute Engine API 활성화 전에는 실패했습니다.
+
+### 장애 대응 / 병목 체크리스트
+
+파이프라인이 기대한 대로 동작하지 않을 때는 아래 순서로 범위를 좁힙니다.
+
+#### 1. 입력 계층 확인
+
+- producer가 실행 중인가?
+- Kafka가 살아 있는가?
+- `vehicle-sensor-data` 토픽이 존재하는가?
+- Kafka에 메시지가 실제로 들어오고 있는가?
+
+이 계층이 비정상이면 보통 `producer -> Kafka` 구간 문제입니다.
+
+#### 2. 실시간 처리 계층 확인
+
+- Flink job이 `RUNNING` 상태인가?
+- Kafka에는 데이터가 들어오는데 PostgreSQL raw row는 안 늘어나는가?
+- Flink 로그에 source/sink 오류가 있는가?
+
+이 계층이 비정상이면 보통 `Kafka -> Flink -> PostgreSQL` 구간 문제입니다.
+
+#### 3. raw 저장 계층 확인
+
+- `public.anomaly_data` row 수가 계속 증가하는가?
+- row 증가 속도가 기대보다 많이 느린가?
+
+이 계층이 비정상이면 Flink sink 처리나 PostgreSQL write 병목일 가능성이 큽니다.
+
+#### 4. 분석 계층 확인
+
+- `dbt run` 시간이 비정상적으로 길어졌는가?
+- `dbt test`가 실패하는가?
+- Airflow task duration이 길어지거나 다음 스케줄과 겹치는가?
+
+이 계층이 비정상이면 보통 `PostgreSQL -> dbt -> Airflow` 구간 문제입니다.
+
+#### 5. 병목을 빠르게 구분하는 기준
+
+- Kafka도 비정상: 입력 계층 문제
+- Kafka는 정상인데 PostgreSQL raw 적재가 느림: 실시간 처리 또는 sink 병목
+- PostgreSQL raw 적재는 정상인데 dbt가 느림: 분석 계층 병목
+- 전체 로직은 정상처럼 보이는데 배포/접근만 실패: 환경 또는 인프라 문제
 
 ### 앞으로의 개선점
 
