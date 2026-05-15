@@ -115,6 +115,9 @@ Verified items:
 - additional dbt data quality checks were added
 - GCP Terraform `plan` and `apply` succeed
 - Compute Engine VM provisioning succeeds
+- basic load behavior was observed by increasing producer throughput
+  - PostgreSQL raw row growth increased as input rate increased
+  - `dbt run --select marts` still completed successfully in the current test range
 
 ![postgres-result](screenshots/postgres_result.png)
 
@@ -184,6 +187,18 @@ Cleanup:
 - dbt uniqueness tests initially failed because raw events could be duplicated, so dedupe logic was added to `fct_vehicle_anomalies.sql`
 - Airflow dbt debug failed before `git` was installed in the Airflow image
 - Terraform apply initially failed until Compute Engine API was enabled
+
+### Lightweight Load Test
+
+A simple load test was performed by reducing the sleep interval in `producer/producer.py` to increase input throughput.
+
+Observed behavior:
+
+- the pipeline continued to ingest events without immediate failure
+- PostgreSQL raw row growth became visibly faster
+- `dbt run --select marts` still completed successfully in the current load range
+
+This does not prove large-scale production readiness, but it does show that the current Kafka -> Flink -> PostgreSQL -> dbt path can tolerate a basic increase in input rate without immediately breaking.
 
 ### Failure and Bottleneck Checklist
 
@@ -349,6 +364,9 @@ docker exec airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt test --profil
 - dbt 데이터 품질 테스트 추가
 - GCP Terraform `plan`, `apply` 성공
 - Compute Engine VM 프로비저닝 성공
+- producer 전송 속도를 높여 간단한 부하 실험 수행
+  - 입력 증가에 따라 PostgreSQL raw row 증가 속도 상승 확인
+  - 현재 실험 범위에서는 `dbt run --select marts`도 정상 완료
 
 ![postgres-result](screenshots/postgres_result.png)
 
@@ -418,6 +436,18 @@ cd infra/terraform
 - raw 이벤트 중복 때문에 dbt uniqueness 테스트가 깨져 `fct_vehicle_anomalies.sql`에 dedupe 로직을 추가했습니다.
 - Airflow 이미지 안에 `git`이 없어서 dbt debug가 실패한 적이 있었습니다.
 - Terraform apply는 Compute Engine API 활성화 전에는 실패했습니다.
+
+### 간단한 부하 실험
+
+`producer/producer.py`의 sleep 간격을 줄여 입력량을 높이는 방식으로 가장 가벼운 부하 실험을 진행했습니다.
+
+관찰한 결과:
+
+- 파이프라인은 즉시 깨지지 않고 계속 이벤트를 적재함
+- PostgreSQL raw row 증가 속도가 눈에 띄게 빨라짐
+- 현재 실험 범위에서는 `dbt run --select marts`도 정상 완료
+
+이 결과가 대규모 운영 안정성을 보장하는 것은 아니지만, 현재 Kafka -> Flink -> PostgreSQL -> dbt 경로가 기본적인 입력 증가에는 즉시 무너지지 않는다는 점은 확인했습니다.
 
 ### 장애 대응 / 병목 체크리스트
 
