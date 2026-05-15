@@ -37,7 +37,7 @@ def main():
             data = create_sensor_data()
             producer.send(topic_name, value=data)
             print(f"Sent data: {data}")
-            time.sleep(1)
+            time.sleep(0.2)
 
     except KeyboardInterrupt:
         print("\nProducer stopped by user.")
