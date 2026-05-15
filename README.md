@@ -127,7 +127,11 @@ Current example dashboard:
 
 ![dashboard](screenshots/chart1.png)
 
-The next goal is to visualize mart-based analytics such as `agg_anomaly_counts_5m` instead of relying only on raw data.
+This dashboard now reads from the dbt mart `public_analytics.agg_anomaly_counts_5m` and visualizes:
+
+- anomaly count trend by 5-minute window
+- total anomaly count by type
+- affected vehicle count by 5-minute window
 
 ### Cloud Provisioning with GCP + Terraform
 
@@ -376,7 +380,11 @@ docker exec airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt test --profil
 
 ![dashboard](screenshots/chart1.png)
 
-다음 단계에서는 raw 데이터 위주가 아니라 `agg_anomaly_counts_5m` 같은 mart 기반 지표를 시각화하는 것이 목표입니다.
+이 대시보드는 이제 dbt mart인 `public_analytics.agg_anomaly_counts_5m`를 읽어서 아래를 시각화합니다.
+
+- 5분 단위 anomaly 추이
+- 유형별 총 anomaly 건수
+- 5분 단위 affected vehicle 수
 
 ### GCP + Terraform 클라우드 프로비저닝
 
