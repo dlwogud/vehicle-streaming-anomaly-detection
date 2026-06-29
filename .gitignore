@@ -214,6 +214,10 @@ __pycache__/
 .env
 data/*.csv
 
+# Stray ML datasets committed by mistake — not used by this pipeline
+data/MNIST/
+data/FashionMNIST/
+
 !flink/lib/
 !flink/lib/*.jar
 
