@@ -2,8 +2,10 @@ package com.example.vehicle;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.TableResult;
+import org.apache.flink.table.api.StatementSet;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 public class VehicleAnomalyJob {
@@ -19,19 +21,26 @@ public class VehicleAnomalyJob {
                 settings);
 
         String sqlScript = Files.readString(SQL_FILE);
-        TableResult lastResult = null;
+        List<String> insertStatements = new ArrayList<>();
+
         for (String statement : sqlScript.split("(?m);\\s*$")) {
             String trimmed = statement.trim();
-            if (trimmed.isEmpty()) {
-                continue;
+            if (trimmed.isEmpty()) continue;
+            if (trimmed.toUpperCase().startsWith("INSERT")) {
+                insertStatements.add(trimmed);
+            } else {
+                tableEnv.executeSql(trimmed);
             }
-            lastResult = tableEnv.executeSql(trimmed);
         }
 
-        if (lastResult == null) {
-            throw new IllegalStateException("No SQL statements found in " + SQL_FILE);
+        if (insertStatements.isEmpty()) {
+            throw new IllegalStateException("No INSERT statements found in " + SQL_FILE);
         }
 
-        lastResult.await();
+        StatementSet stmtSet = tableEnv.createStatementSet();
+        for (String insert : insertStatements) {
+            stmtSet.addInsertSql(insert);
+        }
+        stmtSet.execute().await();
     }
 }

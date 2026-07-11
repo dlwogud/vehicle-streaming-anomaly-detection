@@ -25,6 +25,25 @@ sources:
                       - HIGH_RPM
                       - HIGH_SPEED_WITH_BRAKE
                       - SHARP_STEERING
+      - name: window_anomaly_data
+        description: "Flink TUMBLE 30초 윈도우 집계 결과. 차량별 지속성 이상을 탐지."
+        columns:
+          - name: vehicle_id
+            tests:
+              - not_null
+          - name: window_start
+            tests:
+              - not_null
+          - name: anomaly_reason
+            tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values:
+                      - NORMAL_WINDOW
+                      - SUSTAINED_HIGH_TEMP
+                      - SUSTAINED_HIGH_RPM
+                      - SUSTAINED_HIGH_LOAD
 
 models:
   - name: stg_anomaly_data
@@ -86,3 +105,28 @@ models:
       - name: affected_vehicle_count
         tests:
           - not_null
+  - name: stg_window_anomaly_data
+    description: "window_anomaly_data raw를 staging으로 올린 모델."
+    columns:
+      - name: vehicle_id
+        tests:
+          - not_null
+      - name: window_start
+        tests:
+          - not_null
+      - name: anomaly_reason
+        tests:
+          - not_null
+  - name: fct_sustained_anomalies
+    description: "30초 윈도우 기반 지속성 이상 fact 테이블. NORMAL_WINDOW 제외."
+    columns:
+      - name: sustained_anomaly_key
+        tests:
+          - unique
+          - not_null
+      - name: severity_level
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2]
