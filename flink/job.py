@@ -44,7 +44,7 @@ def create_kafka_topic() -> int:
             "kafka-topics --bootstrap-server kafka:9092 "
             "--create --if-not-exists "
             "--topic vehicle-sensor-data "
-            "--partitions 1 "
+            "--partitions 3 "
             "--replication-factor 1"
         ),
     ]
