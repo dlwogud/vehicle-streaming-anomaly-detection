@@ -20,7 +20,7 @@ End-to-end flow:
 - `PostgreSQL`: stores raw anomaly results
 - `dbt`: transforms raw data into staging, fact, and aggregate models
 - `Airflow`: orchestrates dbt runs and tests
-- `Terraform + GCP`: provisions cloud infrastructure for future deployment
+- `Terraform + GCP`: provisions cloud infrastructure and deploys the full stack automatically
 
 ### Why This Project
 
@@ -133,42 +133,41 @@ This dashboard now reads from the dbt mart `public_analytics.agg_anomaly_counts_
 - total anomaly count by type
 - affected vehicle count by 5-minute window
 
-### Cloud Provisioning with GCP + Terraform
+### Cloud Provisioning and Deployment with GCP + Terraform
 
-This repository includes a small Terraform-based GCP provisioning layer.
+This repository includes a fully automated GCP deployment layer via Terraform.
+
+`terraform apply` provisions an `e2-standard-2` VM and automatically:
+
+1. installs Docker and Docker Compose
+2. clones this repository
+3. builds the Flink JAR via Maven
+4. starts the full stack: Zookeeper → Kafka → PostgreSQL → Flink → Airflow
 
 Completed:
 
 - created GCP project `vehicle-anomaly-pipeline`
-- connected billing
-- configured `gcloud` authentication and ADC
-- enabled Compute Engine API
-- provisioned a Compute Engine VM with Terraform
-- verified VM outputs
+- provisioned `e2-standard-2` VM with Terraform
+- automated full stack deployment via `metadata_startup_script`
+- opened firewall rules for Flink UI (8081) and Airflow UI (8080)
+- verified end-to-end pipeline on GCP: Producer → Kafka → Flink → PostgreSQL → dbt → Airflow
 
-Not completed yet:
+![flink-gcp-running](screenshots/flink_gcp_running.png)
 
-- deploying the full Kafka/Flink/PostgreSQL/dbt/Airflow stack on the VM
-- running the full pipeline end-to-end inside GCP
-
-Current cloud scope:
-
-- infrastructure provisioning: completed
-- application deployment: not completed yet
-
-Basic Terraform flow:
+Terraform flow:
 
 ```bash
 cd infra/terraform
-/opt/homebrew/bin/terraform init
-/opt/homebrew/bin/terraform plan
-/opt/homebrew/bin/terraform apply
+terraform init
+terraform apply -var="project_id=vehicle-anomaly-pipeline"
+# Flink UI available at http://<vm_ip>:8081 (~5 min after apply)
+# Airflow UI available at http://<vm_ip>:8080 (~10 min after apply)
 ```
 
 Cleanup:
 
 ```bash
-/opt/homebrew/bin/terraform destroy
+terraform destroy -var="project_id=vehicle-anomaly-pipeline"
 ```
 
 ### Key Files
@@ -249,7 +248,6 @@ If this layer is unhealthy, the issue is usually in `PostgreSQL -> dbt -> Airflo
 
 ### Future Improvements
 
-- deploy the full Docker-based pipeline on the GCP VM
 - expand the dashboard with mart-based metrics
 - add more operational tests such as row-count anomaly checks
 - document failure handling and rerun strategy
@@ -273,7 +271,7 @@ If this layer is unhealthy, the issue is usually in `PostgreSQL -> dbt -> Airflo
 - `PostgreSQL`: raw anomaly 결과 저장
 - `dbt`: raw 데이터를 staging, fact, aggregate 모델로 변환
 - `Airflow`: dbt 실행과 테스트를 스케줄링
-- `Terraform + GCP`: 이후 배포를 위한 클라우드 인프라 프로비저닝
+- `Terraform + GCP`: 클라우드 인프라 프로비저닝 및 전체 스택 자동 배포
 
 ### 왜 이 프로젝트를 했는가
 
@@ -388,40 +386,39 @@ docker exec airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt test --profil
 
 ### GCP + Terraform 클라우드 프로비저닝
 
-이 레포에는 Terraform 기반 GCP 프로비저닝 레이어도 포함돼 있습니다.
+이 레포에는 Terraform 기반 GCP 완전 자동 배포 레이어가 포함돼 있습니다.
+
+`terraform apply` 한 번으로 `e2-standard-2` VM을 프로비저닝하고 자동으로:
+
+1. Docker / Docker Compose 설치
+2. 레포 클론
+3. Maven으로 Flink JAR 빌드
+4. 전체 스택 기동: Zookeeper → Kafka → PostgreSQL → Flink → Airflow
 
 완료한 것:
 
-- GCP 프로젝트 `vehicle-anomaly-pipeline` 생성
-- Billing 연결
-- `gcloud` 인증과 ADC 설정
-- Compute Engine API 활성화
-- Terraform으로 Compute Engine VM 프로비저닝
-- VM output 확인
+- GCP 프로젝트 `vehicle-anomaly-pipeline` 생성 및 Billing 연결
+- Terraform으로 `e2-standard-2` VM 프로비저닝
+- `metadata_startup_script`로 전체 스택 자동 배포
+- Flink UI(8081), Airflow UI(8080) 방화벽 오픈
+- GCP 위에서 엔드투엔드 파이프라인 동작 검증: Producer → Kafka → Flink → PostgreSQL → dbt → Airflow
 
-아직 하지 않은 것:
+![flink-gcp-running](screenshots/flink_gcp_running.png)
 
-- 해당 VM에 Kafka/Flink/PostgreSQL/dbt/Airflow 전체 스택 배포
-- GCP 내부에서 전체 파이프라인 end-to-end 실행
-
-현재 클라우드 범위:
-
-- 인프라 프로비저닝: 완료
-- 애플리케이션 배포: 아직 안 함
-
-기본 Terraform 흐름:
+Terraform 흐름:
 
 ```bash
 cd infra/terraform
-/opt/homebrew/bin/terraform init
-/opt/homebrew/bin/terraform plan
-/opt/homebrew/bin/terraform apply
+terraform init
+terraform apply -var="project_id=vehicle-anomaly-pipeline"
+# Flink UI: http://<vm_ip>:8081 (apply 후 약 5분)
+# Airflow UI: http://<vm_ip>:8080 (apply 후 약 10분)
 ```
 
 정리 명령:
 
 ```bash
-/opt/homebrew/bin/terraform destroy
+terraform destroy -var="project_id=vehicle-anomaly-pipeline"
 ```
 
 ### 핵심 파일
@@ -502,7 +499,6 @@ cd infra/terraform
 
 ### 앞으로의 개선점
 
-- GCP VM 위에 전체 Docker 기반 파이프라인 배포
 - mart 기반 지표를 사용하는 대시보드 확장
 - row-count anomaly 같은 운영성 테스트 추가
 - 장애 대응과 재실행 전략 문서화
