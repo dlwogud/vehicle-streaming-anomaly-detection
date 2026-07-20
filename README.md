@@ -32,10 +32,10 @@ End-to-end flow:
 
 Current Flink SQL rules:
 
-- `engine_temp > 90` -> `HIGH_ENGINE_TEMP`
-- `rpm > 4500` -> `HIGH_RPM`
-- `speed > 100 AND brake = TRUE` -> `HIGH_SPEED_WITH_BRAKE`
-- `ABS(steering_angle) > 25` -> `SHARP_STEERING`
+- `engine_temp > 110` -> `HIGH_ENGINE_TEMP` (OBD-II ECT: normal 85-105°C, warning above 110°C)
+- `rpm > 5500` -> `HIGH_RPM` (85% of typical 6,500 RPM redline, OBD-II PID 0x0C)
+- `speed > 80 AND brake = TRUE` -> `HIGH_SPEED_WITH_BRAKE` (emergency braking above 80 km/h)
+- `ABS(steering_angle) > 45` -> `SHARP_STEERING` (45° threshold excludes normal parking maneuvers)
 - otherwise -> `NORMAL`
 
 ### Data Model Flow
@@ -283,10 +283,10 @@ If this layer is unhealthy, the issue is usually in `PostgreSQL -> dbt -> Airflo
 
 현재 Flink SQL 규칙:
 
-- `engine_temp > 90` -> `HIGH_ENGINE_TEMP`
-- `rpm > 4500` -> `HIGH_RPM`
-- `speed > 100 AND brake = TRUE` -> `HIGH_SPEED_WITH_BRAKE`
-- `ABS(steering_angle) > 25` -> `SHARP_STEERING`
+- `engine_temp > 110` -> `HIGH_ENGINE_TEMP` (OBD-II ECT: normal 85-105°C, warning above 110°C)
+- `rpm > 5500` -> `HIGH_RPM` (85% of typical 6,500 RPM redline, OBD-II PID 0x0C)
+- `speed > 80 AND brake = TRUE` -> `HIGH_SPEED_WITH_BRAKE` (emergency braking above 80 km/h)
+- `ABS(steering_angle) > 45` -> `SHARP_STEERING` (45° threshold excludes normal parking maneuvers)
 - 그 외 -> `NORMAL`
 
 ### 데이터 모델 흐름
