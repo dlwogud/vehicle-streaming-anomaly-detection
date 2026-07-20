@@ -54,6 +54,12 @@ CREATE TABLE window_anomaly_sink (
     'driver' = 'org.postgresql.Driver'
 );
 
+-- Event-level anomaly detection
+-- Thresholds based on OBD-II standard PIDs and automotive engineering references:
+--   engine_temp : ECT (PID 0x05) normal operating range 85-105°C; warning above 110°C
+--   rpm         : typical gasoline redline ~6,500 RPM; flag sustained load above 85% (5,500 RPM)
+--   speed+brake : emergency braking threshold set at 80 km/h (Korean road speed context)
+--   steering    : parking maneuvers routinely exceed 25°; 45° flags genuine sharp steering at speed
 INSERT INTO anomaly_sink
 SELECT
     vehicle_id,
@@ -64,14 +70,19 @@ SELECT
     brake,
     steering_angle,
     CASE
-        WHEN engine_temp > 90 THEN 'HIGH_ENGINE_TEMP'
-        WHEN rpm > 4500 THEN 'HIGH_RPM'
-        WHEN speed > 100 AND brake = TRUE THEN 'HIGH_SPEED_WITH_BRAKE'
-        WHEN ABS(steering_angle) > 25 THEN 'SHARP_STEERING'
+        WHEN engine_temp > 110                   THEN 'HIGH_ENGINE_TEMP'
+        WHEN rpm > 5500                          THEN 'HIGH_RPM'
+        WHEN speed > 80 AND brake = TRUE         THEN 'HIGH_SPEED_WITH_BRAKE'
+        WHEN ABS(steering_angle) > 45            THEN 'SHARP_STEERING'
         ELSE 'NORMAL'
     END AS anomaly_reason
 FROM vehicle_source;
 
+-- 30-second tumbling window: detect sustained abnormal conditions
+-- Window thresholds are set tighter than event-level to catch patterns
+-- that individual spikes might miss:
+--   avg_engine_temp > 105°C : sustained operation above normal range upper bound
+--   max_rpm > 5,000         : at least one high-load event within the window
 INSERT INTO window_anomaly_sink
 SELECT
     vehicle_id,
@@ -82,9 +93,9 @@ SELECT
     ROUND(AVG(speed), 2)          AS avg_speed,
     COUNT(*)                      AS event_count,
     CASE
-        WHEN AVG(engine_temp) > 85 AND MAX(rpm) > 4000 THEN 'SUSTAINED_HIGH_LOAD'
-        WHEN AVG(engine_temp) > 85                     THEN 'SUSTAINED_HIGH_TEMP'
-        WHEN MAX(rpm) > 4000                           THEN 'SUSTAINED_HIGH_RPM'
+        WHEN AVG(engine_temp) > 105 AND MAX(rpm) > 5000  THEN 'SUSTAINED_HIGH_LOAD'
+        WHEN AVG(engine_temp) > 105                       THEN 'SUSTAINED_HIGH_TEMP'
+        WHEN MAX(rpm) > 5000                              THEN 'SUSTAINED_HIGH_RPM'
         ELSE 'NORMAL_WINDOW'
     END AS anomaly_reason
 FROM TABLE(
